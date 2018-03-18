@@ -15,7 +15,11 @@ var mui = (function(document, undefined) {
 		if (!selector)
 			return wrap();
 		if (typeof selector === 'object')
-			return wrap([selector], null);
+			if ($.isArrayLike(selector)) {
+				return wrap($.slice.call(selector), null);
+			} else {
+				return wrap([selector], null);
+			}
 		if (typeof selector === 'function')
 			return $.ready(selector);
 		if (typeof selector === 'string') {
@@ -125,6 +129,19 @@ var mui = (function(document, undefined) {
 			return object instanceof Array;
 		};
 	/**
+	 * mui isArrayLike 
+	 * @param {Object} obj
+	 */
+	$.isArrayLike = function(obj) {
+		var length = !!obj && "length" in obj && obj.length;
+		var type = $.type(obj);
+		if (type === "function" || $.isWindow(obj)) {
+			return false;
+		}
+		return type === "array" || length === 0 ||
+			typeof length === "number" && length > 0 && (length - 1) in obj;
+	};
+	/**
 	 * mui isWindow(需考虑obj为undefined的情况)
 	 */
 	$.isWindow = function(obj) {
@@ -184,6 +201,53 @@ var mui = (function(document, undefined) {
 			}, false);
 		}
 		return this;
+	};
+	/**
+	 * 将 fn 缓存一段时间后, 再被调用执行
+	 * 此方法为了避免在 ms 段时间内, 执行 fn 多次. 常用于 resize , scroll , mousemove 等连续性事件中;
+	 * 当 ms 设置为 -1, 表示立即执行 fn, 即和直接调用 fn 一样;
+	 * 调用返回函数的 stop 停止最后一次的 buffer 效果
+	 * @param {Object} fn
+	 * @param {Object} ms
+	 * @param {Object} context
+	 */
+	$.buffer = function(fn, ms, context) {
+		var timer;
+		var lastStart = 0;
+		var lastEnd = 0;
+		var ms = ms || 150;
+
+		function run() {
+			if (timer) {
+				timer.cancel();
+				timer = 0;
+			}
+			lastStart = $.now();
+			fn.apply(context || this, arguments);
+			lastEnd = $.now();
+		}
+
+		return $.extend(function() {
+			if (
+				(!lastStart) || // 从未运行过
+				(lastEnd >= lastStart && $.now() - lastEnd > ms) || // 上次运行成功后已经超过ms毫秒
+				(lastEnd < lastStart && $.now() - lastStart > ms * 8) // 上次运行或未完成，后8*ms毫秒
+			) {
+				run.apply(this, arguments);
+			} else {
+				if (timer) {
+					timer.cancel();
+				}
+				timer = $.later(run, ms, null, $.slice.call(arguments));
+			}
+		}, {
+			stop: function() {
+				if (timer) {
+					timer.cancel();
+					timer = 0;
+				}
+			}
+		});
 	};
 	/**
 	 * each

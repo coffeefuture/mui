@@ -3,14 +3,14 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>ECahrt 示例</title>
+		<title>ECharts 示例</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<!--标准mui.css-->
 		<link rel="stylesheet" href="../css/mui.min.css">
 		<!--App自定义的css-->
-		<link rel="stylesheet" type="text/css" href="../css/app.css" />
+		<!-- <link rel="stylesheet" type="text/css" href="../css/app.css" /> -->
 		<style>
 			.chart {
 				height: 200px;
@@ -25,6 +25,7 @@
 				margin-top: 15px;
 			}
 		</style>
+		<script src="../js/mui.min.js"></script>
 	</head>
 
 	<body>
@@ -47,7 +48,7 @@
 				<div class="chart" id="pieChart"></div>
 			</div>
 		</div>
-		<script src="../js/mui.min.js"></script>
+		
 		<script src="../libs/echarts-all.js"></script>
 		<script>
 			var getOption = function(chartType) {
